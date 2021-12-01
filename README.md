@@ -13,7 +13,7 @@ This respository will be continually updated to include new flows.
   * [On-premises to Azure](#single-nva-on-premises-to-azure)
   * [Azure to Azure](#single-nva-azure-to-azure)
   * [Azure to Internet using Public IP](#single-nva-azure-to-internet-using-public-ip)
-  * Azure to Internet using NAT Gateway
+  * [Azure to Internet using NAT Gateway](#single-nva-azure and-to-internet-using-nat-gateway)
   * Internet to Azure with HTTP/HTTPS Traffic
   * Internet to Azure HTTP/HTTPS Traffic with NVA IDS/IPS
   * Internet to Azure Non HTTP/HTTPS Traffic
@@ -59,8 +59,20 @@ Scenario: Virtual machine in one spoke initiates connection to virtual machine i
 | 7 | F -> I | NVA passes traffic back to frontend virtual machine |
 
 ### Single NVA Azure to Internet using Public IP
-Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet.
+Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVA is configured with public IPs.
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
+
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
+| 2 | G -> F | Internal load balancer passes traffic to NVA |
+| 4 | F -> @ | NVA evaluates its rules, allows traffic, NATs to its public IP, and passes traffic to third-party website |
+| 5 | @ -> D | Third-party website passes traffic to public IP of NVA |
+| 6 | F -> I | NVA passes traffic back to frontend virtual machine |
+
+### Single NVA Azure to Internet using NAT Gateway
+Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVAs are configured to use NAT Gateway.
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1-NG.png)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
