@@ -9,9 +9,9 @@ The traffic flows documented in this repository seek to fill this gap to provide
 This respository will be continually updated to include new flows.
 
 ## Sections
-* Hub and Spoke with single NVA stack for all traffic
+* [Hub and Spoke with single NVA stack for all traffic](#hub-and-spoke-with-single-nva-stack-for-all-traffic)
   * [On-premises to Azure](#single-nva-on-premises-to-azure)
-  * Azure to Azure
+  * [Azure to Azure](#single-nva-azure-to-azure)
   * Azure to Internet (Public IP)
   * Azure to Internet (NAT Gateway)
   * Internet to Azure (HTTP/HTTPS Traffic)
@@ -25,9 +25,9 @@ This respository will be continually updated to include new flows.
 ## Hub and Spoke with Single NVA Stack for all traffic
 The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south (to and from Internet) and east/west (to and from on-premises or within Azure spoke to spoke). Each NVA is configured with a single NIC (network interface card) for payload traffic. The NVAs may have a separate NIC for management traffic, but note this NIC is not represented in these diagrams.
 
+### Single NVA On-premises to Azure
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
 
-### Single NVA On-premises to Azure
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
 | 1 | A -> B | Machine traffic passes over ExpressRoute circuit to Virtual Network Gateway |
@@ -39,3 +39,15 @@ The patterns in this section assume the organization is deploying a single NVA s
 | 7 | G -> F | Internal load balancer passes traffic to NVA
 | 8 | F -> B | NVA passes traffic to Virtual Network Gateway 
 | 9 | B -> A | Virtual Network Gateway passes traffic over ExpressRoute circuit back to machine on-premises |
+
+### Single NVA Azure to Azure
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
+
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
+| 2 | G -> F | Internal load balancer passes traffic to NVA |
+| 4 | F -> L | NVA evaluates its rules, allows traffic, and passes Active Directory domain controller virtual machine |
+| 5 | L -> G | User defined route in route table assigned to net-ad subnet directs traffic to internal load balancer for NVA |
+| 6 | G -> F | Internal load balancer passes traffic to NVA |
+| 7 | F -> I | NVA passes traffic back to frontend virtual machine |
