@@ -25,7 +25,7 @@ This respository will be continually updated to include new flows.
 ## Hub and Spoke with Single NVA Stack for all traffic
 The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south (to and from Internet) and east/west (to and from on-premises or within Azure spoke to spoke). Each NVA is configured with a single NIC (network interface card) for payload traffic. The NVAs may have a separate NIC for management traffic, but note this NIC is not represented in these diagrams.
 
-![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA.png)
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
 
 ### Single NVA On-premises to Azure
 | Step | Path  | Description |
