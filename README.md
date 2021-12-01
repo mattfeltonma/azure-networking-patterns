@@ -31,7 +31,7 @@ The patterns in this section assume the organization is deploying a single NVA s
 
 ### Single NVA On-premises to Azure
 Scenario: Machine on-premises initiates a connection to an application running in Azure.
-![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
