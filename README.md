@@ -54,7 +54,7 @@ Scenario: Virtual machine in one spoke initiates connection to virtual machine i
 | 1 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
 | 2 | G -> F | Internal load balancer passes traffic to NVA |
 | 4 | F -> L | NVA evaluates its rules, allows traffic, and passes it to Active Directory domain controller virtual machine |
-| 5 | L -> G | User defined route in route table assigned to net-ad subnet directs traffic to internal load balancer for NVA |
+| 5 | L -> G | User defined route in route table assigned to snet-ad subnet directs traffic to internal load balancer for NVA |
 | 6 | G -> F | Internal load balancer passes traffic to NVA |
 | 7 | F -> I | NVA passes traffic back to frontend virtual machine |
 
