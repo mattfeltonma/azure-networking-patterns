@@ -12,11 +12,11 @@ This respository will be continually updated to include new flows.
 * [Hub and Spoke with single NVA stack for all traffic](#hub-and-spoke-with-single-nva-stack-for-all-traffic)
   * [On-premises to Azure](#single-nva-on-premises-to-azure)
   * [Azure to Azure](#single-nva-azure-to-azure)
-  * Azure to Internet (Public IP)
-  * Azure to Internet (NAT Gateway)
-  * Internet to Azure (HTTP/HTTPS Traffic)
-  * Internet to Azure (HTTP/HTTPS Traffic with NVA IDS/IPS)
-  * Internet to Azure (Non-HTTP/HTTPS Traffic)
+  * [Azure to Internet using Public IP](#single-nva-azure-to-internet-using-public-ip)
+  * Azure to Internet using NAT Gateway
+  * Internet to Azure with HTTP/HTTPS Traffic
+  * Internet to Azure HTTP/HTTPS Traffic with NVA IDS/IPS
+  * Internet to Azure Non HTTP/HTTPS Traffic
 * Hub and Spoke with separate NVA stacks for east/west and north/south traffic
   * Azure to Azure
   * Azure to Internet (Public IP)
@@ -26,6 +26,7 @@ This respository will be continually updated to include new flows.
 The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south (to and from Internet) and east/west (to and from on-premises or within Azure spoke to spoke). Each NVA is configured with a single NIC (network interface card) for payload traffic. The NVAs may have a separate NIC for management traffic, but note this NIC is not represented in these diagrams.
 
 ### Single NVA On-premises to Azure
+Scenario: Machine on-premises initiates a connection to an application running in Azure.
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
 
 | Step | Path  | Description |
@@ -41,6 +42,7 @@ The patterns in this section assume the organization is deploying a single NVA s
 | 9 | B -> A | Virtual Network Gateway passes traffic over ExpressRoute circuit back to machine on-premises |
 
 ### Single NVA Azure to Azure
+Scenario: Virtual machine in one spoke initiates connection to virtual machine in another spoke.
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
 
 | Step | Path  | Description |
@@ -51,3 +53,15 @@ The patterns in this section assume the organization is deploying a single NVA s
 | 5 | L -> G | User defined route in route table assigned to net-ad subnet directs traffic to internal load balancer for NVA |
 | 6 | G -> F | Internal load balancer passes traffic to NVA |
 | 7 | F -> I | NVA passes traffic back to frontend virtual machine |
+
+### Single NVA Azure to Internet using Public IP
+Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet.
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
+
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
+| 2 | G -> F | Internal load balancer passes traffic to NVA |
+| 4 | F -> @ | NVA evaluates its rules, allows traffic, NATs to its public IP, and passes traffic to third-party website |
+| 5 | @ -> D | Third-party website passes traffic to public IP of NVA |
+| 6 | F -> I | NVA NATs to its private IP and passes traffic back to frontend virtual machine |
