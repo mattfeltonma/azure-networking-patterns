@@ -47,7 +47,7 @@ Scenario: Machine on-premises initiates a connection to an application running i
 
 ### Single NVA Azure to Azure
 Scenario: Virtual machine in one spoke initiates connection to virtual machine in another spoke.
-![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -60,7 +60,7 @@ Scenario: Virtual machine in one spoke initiates connection to virtual machine i
 
 ### Single NVA Azure to Internet using Public IP
 Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVA is configured with public IPs.
-![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.png)
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -72,7 +72,7 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 
 ### Single NVA Azure to Internet using NAT Gateway
 Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVAs are configured to use NAT Gateway.
-![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1-NG.png)
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Image1-NG.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
