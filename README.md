@@ -25,6 +25,17 @@ This respository will be continually updated to include new flows.
 ## Hub and Spoke with Single NVA Stack for all traffic
 The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south (to and from Internet) and east/west (to and from on-premises or within Azure spoke to spoke). Each NVA is configured with a single NIC (network interface card) for payload traffic. The NVAs may have a separate NIC for management traffic, but note this NIC is not represented in these diagrams.
 
-### Single NVA On-premises to Azure
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA.png)
 
+### Single NVA On-premises to Azure
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | A -> B | Machine traffic passes over ExpressRoute circuit to Virtual Network Gateway |
+| 2 | B -> G  | User defined route in route table assigned to GatewaySubnet directs traffic to internal load balancer for NVA |
+| 3 | G -> F | Internal load balancer passes traffic to NVA |
+| 4 | F -> H | NVA evaluates its rules, allows traffic, and passes it to internal load balancer for frontend application |
+| 5 | H -> I | Internal load balancer for frontend application passes traffic to frontend application virtual machine |
+| 6 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
+| 7 | G -> F | Internal load balancer passes traffic to NVA
+| 8 | F -> B | NVA passes traffic to Virtual Network Gateway 
+| 9 | B -> A | Virtual Network Gateway passes traffic over ExpressRoute circuit back to machine on-premises |
