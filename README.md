@@ -64,4 +64,4 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 | 2 | G -> F | Internal load balancer passes traffic to NVA |
 | 4 | F -> @ | NVA evaluates its rules, allows traffic, NATs to its public IP, and passes traffic to third-party website |
 | 5 | @ -> D | Third-party website passes traffic to public IP of NVA |
-| 6 | F -> I | NVA NATs to its private IP and passes traffic back to frontend virtual machine |
+| 6 | F -> I | NVA passes traffic back to frontend virtual machine |
