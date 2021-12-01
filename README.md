@@ -82,4 +82,4 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 | 5 | E -> @ | NAT Gateway NATs to its public IP and passes traffic to third-party website |
 | 6 | @ -> E | Third-party website passes traffic back to public IP of NAT Gateway |
 | 7 | D -> F | NAT Gateway passes traffic to NVA |
-| 8 | F -> I | NVA passes traffic to front end VM
+| 8 | F -> I | NVA passes traffic to frontend virtual machine |
