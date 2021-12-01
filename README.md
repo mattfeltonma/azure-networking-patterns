@@ -13,7 +13,7 @@ This respository will be continually updated to include new flows.
   * [On-premises to Azure](#single-nva-on-premises-to-azure)
   * [Azure to Azure](#single-nva-azure-to-azure)
   * [Azure to Internet using Public IP](#single-nva-azure-to-internet-using-public-ip)
-  * [Azure to Internet using NAT Gateway](#single-nva-azure and-to-internet-using-nat-gateway)
+  * [Azure to Internet using NAT Gateway](#single-nva-azure-to-internet-using-nat-gateway)
   * Internet to Azure with HTTP/HTTPS Traffic
   * Internet to Azure HTTP/HTTPS Traffic with NVA IDS/IPS
   * Internet to Azure Non HTTP/HTTPS Traffic
