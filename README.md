@@ -26,4 +26,5 @@ This respository will be continually updated to include new flows.
 The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south (to and from Internet) and east/west (to and from on-premises or within Azure spoke to spoke). Each NVA is configured with a single NIC (network interface card) for payload traffic. The NVAs may have a separate NIC for management traffic, but note this NIC is not represented in these diagrams.
 
 ### Single NVA On-premises to Azure
+![HS-1NVA](https://github.com/mattfeltonma/azure-network-patterns/blob/master/images/HS-1NVA.png)
 
