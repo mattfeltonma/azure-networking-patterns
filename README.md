@@ -23,7 +23,7 @@ This respository will be continually updated to include new flows.
   * Azure to Internet (NAT Gateway)
 
 ## Hub and Spoke with Single NVA Stack for all traffic
-The patterns in this section assume the customer is deploying a single NVA stack that will handle north/south (to and from Internet) and east/west (to and from on-premises or within Azure spoke to spoke). Each NVA is configured with a single NIC (network interface card) for payload traffic. The NVAs may have a separate NIC for management traffic, but note this NIC is not shown in these diagrams and is considered out of scope.
+The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south (to and from Internet) and east/west (to and from on-premises or within Azure spoke to spoke). Each NVA is configured with a single NIC (network interface card) for payload traffic. The NVAs may have a separate NIC for management traffic, but note this NIC is not represented in these diagrams.
 
 ### Single NVA On-premises to Azure
-Test
+
