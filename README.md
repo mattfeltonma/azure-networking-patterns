@@ -14,7 +14,7 @@ This respository will be continually updated to include new flows.
   * [Azure to Azure](#single-nva-azure-to-azure)
   * [Azure to Internet using Public IP](#single-nva-azure-to-internet-using-public-ip)
   * [Azure to Internet using NAT Gateway](#single-nva-azure-to-internet-using-nat-gateway)
-  * Internet to Azure with HTTP/HTTPS Traffic
+  * [Internet to Azure with HTTP/HTTPS Traffic](#single-nva-internet-to-azure-http-and-https)
   * Internet to Azure HTTP/HTTPS Traffic with NVA IDS/IPS
   * Internet to Azure Non HTTP/HTTPS Traffic
 * Hub and Spoke with separate NVA stacks for east/west and north/south traffic
@@ -53,10 +53,10 @@ Scenario: Virtual machine in one spoke initiates connection to virtual machine i
 | ------------- | ------------- | ------------- |
 | 1 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
 | 2 | G -> F | Internal load balancer passes traffic to NVA |
-| 4 | F -> L | NVA evaluates its rules, allows traffic, and passes it to Active Directory domain controller virtual machine |
-| 5 | L -> G | User defined route in route table assigned to snet-ad subnet directs traffic to internal load balancer for NVA |
-| 6 | G -> F | Internal load balancer passes traffic to NVA |
-| 7 | F -> I | NVA passes traffic back to frontend virtual machine |
+| 3 | F -> L | NVA evaluates its rules, allows traffic, and passes it to Active Directory domain controller virtual machine |
+| 4 | L -> G | User defined route in route table assigned to snet-ad subnet directs traffic to internal load balancer for NVA |
+| 5 | G -> F | Internal load balancer passes traffic to NVA |
+| 6 | F -> I | NVA passes traffic back to frontend virtual machine |
 
 ### Single NVA Azure to Internet using Public IP
 Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVA is configured with public IPs.
@@ -66,9 +66,9 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 | ------------- | ------------- | ------------- |
 | 1 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
 | 2 | G -> F | Internal load balancer passes traffic to NVA |
-| 4 | F -> @ | NVA evaluates its rules, allows traffic, NATs to its public IP, and passes traffic to third-party website |
-| 5 | @ -> D | Third-party website passes traffic back to public IP of NVA |
-| 6 | F -> I | NVA passes traffic to frontend virtual machine |
+| 3 | F -> @ | NVA evaluates its rules, allows traffic, NATs to its public IP, and passes traffic to third-party website |
+| 4 | @ -> D | Third-party website passes traffic back to public IP of NVA |
+| 5 | F -> I | NVA passes traffic to frontend virtual machine |
 
 ### Single NVA Azure to Internet using NAT Gateway
 Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVAs are configured to use NAT Gateway.
@@ -78,8 +78,21 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 | ------------- | ------------- | ------------- |
 | 1 | I -> G | User defined route in route table assigned to frontend subnet directs traffic to internal load balancer for NVA |
 | 2 | G -> F | Internal load balancer passes traffic to NVA |
-| 4 | F -> D | NVA evaluates its rules, allows traffic, and passes traffic to NAT Gateway |
-| 5 | E -> @ | NAT Gateway NATs to its public IP and passes traffic to third-party website |
-| 6 | @ -> E | Third-party website passes traffic back to public IP of NAT Gateway |
-| 7 | D -> F | NAT Gateway passes traffic to NVA |
-| 8 | F -> I | NVA passes traffic to frontend virtual machine |
+| 3 | F -> D | NVA evaluates its rules, allows traffic, and passes traffic to NAT Gateway |
+| 4 | E -> @ | NAT Gateway NATs to its public IP and passes traffic to third-party website |
+| 5 | @ -> E | Third-party website passes traffic back to public IP of NAT Gateway |
+| 6 | D -> F | NAT Gateway passes traffic to NVA |
+| 7 | F -> I | NVA passes traffic to frontend virtual machine |
+
+### Single NVA Internet to Azure Http and Https
+Scenario: User on the Internet initiates a connection to an application running in Azure. The application has been secured behind an Application Gateway for intra-region security and load balancing. Azure Front Door is placed in front of the Application Gateway to provide inter-region security, load balancing, and site acceleration.
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-No-Ids-Ips.svg)
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | @ -> P | User's machine sends traffic to Azure Front Door which terminates the TCP connection |
+| 2 | P -> O | Azure Front Door establishes a new TCP connection with the Application Gateway's public IP and adds the user's public IP to the X-Forwarded-For header |
+| 3 | N -> H | Application Gateway NATs to its private IP, appends the X-Forwarded-Header with the Azure Front Door public IP, performs its security and load balancing function, and passes the traffic to the web frontend internal load balancer |
+| 4 | H -> I | Internal load balancer passes traffic to the frontend virtual machine |
+| 5 | I -> N | Frontend virtual machine passes traffic to the Application Gateway|
+| 6 | O -> P | Application Gateway NATs to its public IP and passes traffic to Azure Front Door |
+| 7 | P -> @ | Azure Front Door passes traffic to user's machine |
