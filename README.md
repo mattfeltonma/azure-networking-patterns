@@ -15,7 +15,7 @@ This respository will be continually updated to include new flows.
   * [Azure to Internet using Public IP](#single-nva-azure-to-internet-using-public-ip)
   * [Azure to Internet using NAT Gateway](#single-nva-azure-to-internet-using-nat-gateway)
   * [Internet to Azure with HTTP/HTTPS Traffic](#single-nva-internet-to-azure-http-and-https)
-  * Internet to Azure HTTP/HTTPS Traffic with NVA IDS/IPS
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS](#single-nva-internet-to-azure-http-and-https)
   * Internet to Azure Non HTTP/HTTPS Traffic
 * Hub and Spoke with separate NVA stacks for east/west and north/south traffic
   * Azure to Azure
@@ -92,7 +92,26 @@ Scenario: User on the Internet initiates a connection to an application running 
 | 1 | @ -> P | User's machine sends traffic to Azure Front Door which terminates the TCP connection |
 | 2 | P -> O | Azure Front Door establishes a new TCP connection with the Application Gateway's public IP and adds the user's public IP to the X-Forwarded-For header |
 | 3 | N -> H | Application Gateway NATs to its private IP, appends the X-Forwarded-Header with the Azure Front Door public IP, performs its security and load balancing function, and passes the traffic to the web frontend internal load balancer |
-| 4 | H -> I | Internal load balancer passes traffic to the frontend virtual machine |
-| 5 | I -> N | Frontend virtual machine passes traffic to the Application Gateway|
+| 4 | H -> I | Internal load balancer passes traffic to the web frontend virtual machine |
+| 5 | I -> N | Web frontend virtual machine passes traffic to the Application Gateway private IP |
 | 6 | O -> P | Application Gateway NATs to its public IP and passes traffic to Azure Front Door |
 | 7 | P -> @ | Azure Front Door passes traffic to user's machine |
+
+### Single NVA Internet to Azure Http and Https with IDS IPS
+Scenario: User on the Internet initiates a connection to an application running in Azure. The application has been secured behind an Application Gateway for intra-region security and load balancing. Azure Front Door is placed in front of the Application Gateway to provide inter-region security, load balancing, and site acceleration. An NVA is placed between the Application Gateway and the application to provide IDS/IPS functionality. 
+
+Reference the [public documentation](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gateway/firewall-application-gateway) for additional ways to achieve this pattern.
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-Ids-Ips.svg)
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | @ -> P | User's machine sends traffic to Azure Front Door which terminates the TCP connection |
+| 2 | P -> O | Azure Front Door establishes a new TCP connection with the Application Gateway's public IP and adds the user's public IP to the X-Forwarded-For header |
+| 3 | N -> G | Application Gateway NATs to its private IP, appends the X-Forwarded-Header with the Azure Front Door public IP, performs its security and load balancing function, and user defined route in route table assigned to Application Gateway subnet directs traffic to the internal load balancer for the NVA |
+| 4 | G -> F | Internal load balancer passes traffic to NVA |
+| 5 | F -> H | NVA evaluates its rules, allows traffic, and passes it to the web frontend internal load balancer |
+| 6 | H -> I | Internal load balancer passes traffic to the frontend virtual machine |
+| 7 | I -> G | User defined route in route table assigned to web frontend subnet directs traffic to the internal load balancer for the NVA |
+| 8 | G -> F | Internal load balancer passes traffic to the NVA |
+| 9 | F -> N | NVA passes traffic to the Application Gateway private IP |
+| 10 | O -> P | Application Gateway NATs to its public IP and passes traffic to Azure Front Door |
+| 11 | P -> @ | Azure Front Door passes traffic to user's machine |
