@@ -15,7 +15,7 @@ This respository will be continually updated to include new flows.
   * [Azure to Internet using Public IP](#single-nva-azure-to-internet-using-public-ip)
   * [Azure to Internet using NAT Gateway](#single-nva-azure-to-internet-using-nat-gateway)
   * [Internet to Azure with HTTP/HTTPS Traffic](#single-nva-internet-to-azure-http-and-https)
-  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS](#single-nva-internet-to-azure-http-and-https)
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS](#single-nva-internet-to-azure-http-and-https-with-ids-ips)
   * Internet to Azure Non HTTP/HTTPS Traffic
 * Hub and Spoke with separate NVA stacks for east/west and north/south traffic
   * Azure to Azure
