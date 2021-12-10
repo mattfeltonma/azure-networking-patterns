@@ -122,8 +122,8 @@ Scenario: User on the Internet initiates a connection to an application running 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
 | 1 | @ -> C | User's machine sends traffic to the public IP address of an external Azure Load Balancer |
-| 2 | C -> F | External load balancer passes the traffic through the Azure software-defined-network to the NVA |
+| 2 | C -> F | External load balancer passes the traffic through the Azure software defined network which preserves the user's machine's public IP as the source and passes it on to the NVA |
 | 3 | F -> H | NVA evaluates its rules, allows traffic, NATs to its private IP, and passes it to the web frontend internal load balancer |
 | 4 | H -> I | Web frontend internal load balancer passes traffic to web frontend virtual machine |
 | 5 | I -> F | Web frontend virtual machine passes traffic to NVA |
-| 6 | F -> @ | NVA passes traffic back through the Azure software-defined-network where its source IP address is rewritten to the external load balancer's public IP
+| 6 | F -> @ | NVA passes traffic back through the Azure software defined network where its source IP address is rewritten to the external load balancer's public IP
