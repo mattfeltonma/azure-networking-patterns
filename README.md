@@ -16,7 +16,7 @@ This respository will be continually updated to include new flows.
   * [Azure to Internet using NAT Gateway](#single-nva-azure-to-internet-using-nat-gateway)
   * [Internet to Azure with HTTP/HTTPS Traffic](#single-nva-internet-to-azure-http-and-https)
   * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS](#single-nva-internet-to-azure-http-and-https-with-ids-ips)
-  * Internet to Azure Non HTTP/HTTPS Traffic
+  * [Internet to Azure Non HTTP/HTTPS Traffic](#single-nva-internet-to-azure-non-http-and-https)
 * Hub and Spoke with separate NVA stacks for east/west and north/south traffic
   * Azure to Azure
   * Azure to Internet (Public IP)
@@ -115,3 +115,15 @@ Reference the [public documentation](https://docs.microsoft.com/en-us/azure/arch
 | 9 | F -> N | NVA passes traffic to the Application Gateway private IP |
 | 10 | O -> P | Application Gateway NATs to its public IP and passes traffic to Azure Front Door |
 | 11 | P -> @ | Azure Front Door passes traffic to user's machine |
+
+### Single NVA Internet to Azure Non Http and Https
+Scenario: User on the Internet initiates a connection to an application running in Azure. The application is served up using a protocol that IS NOT HTTP/HTTPS. An NVA is placed between the Internet and the application.
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Non-Web-Inbound.svg)
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | @ -> C | User's machine sends traffic to the public IP address of an external Azure Load Balancer |
+| 2 | C -> F | External load balancer passes the traffic through the Azure software-defined-network to the NVA |
+| 3 | F -> H | NVA evaluates its rules, allows traffic, NATs to its private IP, and passes it to the web frontend internal load balancer |
+| 4 | H -> I | Web frontend internal load balancer passes traffic to web frontend virtual machine |
+| 5 | I -> F | Web frontend virtual machine passes traffic to NVA |
+| 6 | F -> @ | NVA passes traffic back through the Azure software-defined-network where its source IP address is rewritten to the external load balancer's public IP
