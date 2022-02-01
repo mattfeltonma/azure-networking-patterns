@@ -98,6 +98,7 @@ Considerations of this pattern include:
 * Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway
 * Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-No-Ids-Ips.svg)
+
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
 | 1 | @ -> P | User's machine sends traffic to Azure Front Door which terminates the TCP connection |
@@ -119,6 +120,7 @@ Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-No-Ids-Ips-option-2.svg)
+
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
 | 1 | @ -> P | User's machine sends traffic to Azure Front Door which terminates the TCP connection |
@@ -143,6 +145,7 @@ Considerations of this pattern include:
 * Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway
 * Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-Ids-Ips.svg)
+
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
 | 1 | @ -> P | User's machine sends traffic to Azure Front Door which terminates the TCP connection |
@@ -170,6 +173,7 @@ Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
 * Additional costs of traffic traversing the peering to the transit virtual network
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
+
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
 | 1 | @ -> P | User's machine sends traffic to Azure Front Door which terminates the TCP connection |
@@ -187,6 +191,7 @@ Considerations of this pattern include:
 ### Single NVA Internet to Azure Non Http and Https
 Scenario: User on the Internet initiates a connection to an application running in Azure. The application is served up using a protocol that IS NOT HTTP/HTTPS. An NVA is placed between the Internet and the application.
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Non-Web-Inbound.svg)
+
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
 | 1 | @ -> C | User's machine sends traffic to the public IP address of an external Azure Load Balancer |
