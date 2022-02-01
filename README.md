@@ -119,7 +119,7 @@ Benefits of this pattern include:
 Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
-![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-No-Ids-Ips-option-2.svg)
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-No-Ids-Ips-Option-2.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -173,6 +173,7 @@ Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
 * Additional costs of traffic traversing the peering to the transit virtual network
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
+![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-Ids-Ips-Option-2.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
