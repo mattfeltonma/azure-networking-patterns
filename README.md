@@ -118,7 +118,7 @@ Benefits of this pattern include:
 
 Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
-* Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume one Public IP.
+* Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
 ![HS-1NVA](https://github.com/mattfeltonma/azure-networking-patterns/blob/main/images/HS-1NVA-Web-Inbound-No-Ids-Ips-Option-2.svg)
 
