@@ -165,11 +165,11 @@ Considerations of this pattern include:
 | 6 | E -> G | NVA evaluates its rules, allows traffic, and passes it to internal load balancer for frontend application |
 | 7 | G -> H | Internal load balancer passes traffic to the web frontend virtual machine |
 | 8 | H -> F | User defined route in route table assigned to web frontend subnet directs traffic to the internal load balancer for the NVA |
-| 8 | F -> E | Internal load balancer passes traffic to the NVA |
-| 9 | E -> M | NVA passes traffic to the Application Gateway internal interface |
-| 10 | M -> N | Application Gateway NATs to it's public IP |
-| 11 | N -> O | Application Gateway passes traffic to Azure Front Door |
-| 12 | O -> @ | Azure Front Door passes traffic to user's machine
+| 9 | F -> E | Internal load balancer passes traffic to the NVA |
+| 10 | E -> M | NVA passes traffic to the Application Gateway internal interface |
+| 11 | M -> N | Application Gateway NATs to it's public IP |
+| 12 | N -> O | Application Gateway passes traffic to Azure Front Door |
+| 13 | O -> @ | Azure Front Door passes traffic to user's machine
 
 ### Single NVA Internet to Azure Http and Https with IDS IPS Option 2
 Scenario: User on the Internet initiates a connection to an application running in Azure. The application has been secured behind an Application Gateway for intra-region security and load balancing. The Application Gateway is located in the workload virtual network and is dedicated to the workload. Azure Front Door is placed in front of the Application Gateway to provide inter-region security, load balancing, and site acceleration. An NVA is placed between the Application Gateway and the application to provide IDS/IPS functionality. 
@@ -196,11 +196,11 @@ Considerations of this pattern include:
 | 6 | E -> G | NVA evaluates its rules, allows traffic, and passes it to internal load balancer for frontend application |
 | 7 | G -> H | Internal load balancer passes traffic to the web frontend virtual machine |
 | 8 | H -> F | User defined route in route table assigned to web frontend subnet directs traffic to the internal load balancer for the NVA |
-| 8 | F -> E | Internal load balancer passes traffic to the NVA |
-| 9 | E -> M | NVA passes traffic to the Application Gateway internal interface |
-| 10 | M -> N | Application Gateway NATs to it's public IP |
-| 11 | N -> O | Application Gateway passes traffic to Azure Front Door |
-| 12 | O -> @ | Azure Front Door passes traffic to user's machine
+| 9 | F -> E | Internal load balancer passes traffic to the NVA |
+| 10 | E -> M | NVA passes traffic to the Application Gateway internal interface |
+| 11 | M -> N | Application Gateway NATs to it's public IP |
+| 12 | N -> O | Application Gateway passes traffic to Azure Front Door |
+| 13 | O -> @ | Azure Front Door passes traffic to user's machine
 
 ### Single NVA Internet to Azure Non Http and Https
 Scenario: User on the Internet initiates a connection to an application running in Azure. The application is served up using a protocol that IS NOT HTTP/HTTPS. An NVA is placed between the Internet and the application.
