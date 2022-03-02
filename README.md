@@ -23,14 +23,12 @@ This respository will be continually updated to include new flows.
   * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 1](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-1)
   * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 2](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-2)
   * [Internet to Azure Non HTTP/HTTPS Traffic](#single-nva-internet-to-azure-non-http-and-https)
+  * [Cross Region Azure to Azure](#single-nva-cross-region-azure-to-azure)
+  * [Dual NIC On-Premises to Azure](#single-nva-with-dual-nics-on-premises-to-azure)
 * [Hub and Spoke with separate NVA stacks for east/west and north/south traffic](#hub-and-spoke-with-separate-nva-stacks)
   * [Azure to Azure](#dual-nva-azure-to-azure)
   * [Azure to Internet using Public IP](#dual-nva-azure-to-internet-using-public-ip)
   * [Azure to Internet using NAT Gateway](#dual-nva-azure-to-internet-using-nat-gateway)
-* [Hub and Spoke with single NVA stack for all traffic and NVA has dual NICs](#hub-and-spoke-with-single-nva-using-two-network-interfaces-for-private-traffic)
-  * [On-premises to Azure](#single-nva-with-dual-nics-on-premises-to-azure)
-* Hub and Spoke with single NVA stack for all traffic in multiple regions
-  * Azure to Azure
 
 ## Hub and Spoke with Single NVA Stack for all traffic
 The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south and east/west traffic. Each NVA is configured with three network interfaces. The first interface handles private traffic (to and from on-premises to Azure or within Azure). The second interface handles public traffic (to and from the Internet). The third interface, which is not pictured in these images, is used for management of the NVA.
@@ -221,6 +219,50 @@ Scenario: User on the Internet initiates a connection to an application running 
 | 7 | E -> D | NVA routes traffic from its private interface to its public interface
 | 8 | D -> @ | NVA passes traffic back through the Azure software defined network where its source IP address is rewritten to the external load balancer's public IP
 
+### Single NVA Cross Region Azure to Azure
+Scenario: Workload running in spoke 1 region 1 needs to communicate with workload in spoke 2 region 2.
+![HS-1NVA-CROSS-REGION-AZURE-TO-AZURE](images/HS-1NVA-Two-Regions.svg)
+
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | H -> F | User defined route in route table assigned to web frontend subnet directs traffic to the internal load balancer for NVA in region 1|
+| 2 | F -> E | Internal load balancer passes traffic to private interface of NVA in region 1 |
+| 3 | E -> FF | NVA in region 1 evaluates its rules, allows traffic, and user defined route in route table assigned to private interface subnet directs traffic to internal load balancer for NVA in region 2 |
+| 4 | FF -> EE | Internal load balancer passes traffic to private interface of NVA in region 2 |
+| 5 | EE -> GG | NVA in region 2 evaluates its rules, allows traffic, and passes it to internal load balancer for frontend application in region 2 |
+| 6 | GG -> HH | Web frontend internal load balancer passes traffic to web frontend virtual machine |
+| 7 | HH -> FF | User defined route in route table assigned to web frontend subnet directs traffic to the internal load balancer for NVA in region 2 |
+| 8 | FF -> EE | Internal load balancer passes traffic to private interface of NVA in region 2 |
+| 9 | EE -> F | User defined route in route table assigned to NVA in region 2 private interface subnet directs traffic to internal load balancer of NVA in region 1 |
+| 10 | F -> E | Internal load balancer passes traffic to private interface of NVA in region 1 |
+| 11 | E -> G | NVA in region 1 passes traffic to the internal load balancer for the web frontend in region 1 |
+| 12 | G -> H | Web frontend internal load balancer passes traffic to web frontend virtual machine |
+
+### Single NVA with Dual NICs On-premises to Azure
+This pattern adds an additional network interface to the NVA to handle east/west traffic. In some NVAs this allows the user to establish separate security zones for each network interface allowing for a more traditional administration experience. It is often adopted by organizations who have not yet adopted traditional processes to cloud.
+
+Organizations should avoid this pattern and instead use a single network interface for all east and west traffic as illustrated in the other patterns in this repository. Using this pattern will introduce significant additional administration overhead because traffic will be passes through separate load balancers attached to the same NVA forcing SNAT to be used. This is due to mismatches in the [five-tuple hash algorithm](https://docs.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts#hash-based) Azure Load Balancers use. This [video by John Savill](https://www.youtube.com/watch?v=LrshfXfz29Y) goes into more detail.
+
+Microsoft does not recommend this pattern and organizations should consult with their NVA vendor for best practices on implementing NVAs in Azure.
+
+Note that this pattern does not show the public interface or management interface in this diagram.
+
+Scenario: Machine on-premises initiates a connection to an application running in Azure.
+![HS-1NVA-TWO-NICS](images/HS-1NVA-Two-NICs.svg)
+
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | A -> B | Machine traffic passes over ExpressRoute circuit to Virtual Network Gateway |
+| 2 | B -> C  | User defined route in route table assigned to GatewaySubnet directs traffic to internal load balancer for NVA's untrusted interface
+| 3 | C -> D | Internal load balancer passes traffic to untrusted interface of NVA |
+| 4 | D -> E | NVA evaluates its rules, allows traffic, routes to its trusted interface |
+| 5 | E -> H | NVA SNATs to its trusted interface IP and passes traffic to internal load balancer for frontend application |
+| 6 | G -> H | Internal load balancer for frontend application passes traffic to frontend application virtual machine |
+| 7 | H -> E | Frontend application virtual machine passes traffic directly back to NVA's trusted interface |
+| 8 | E -> D | NVA routes traffic from its trusted interface to its untrusted interface
+| 9 | D -> B | NVA passes traffic to Virtual Network Gateway 
+| 10 | B -> A | Virtual Network Gateway passes traffic over ExpressRoute circuit back to machine on-premises |
+
 ## Hub and Spoke With Separate NVA Stacks
 The patterns in this section assume the organization is deploying a separate NVA stack for north/south and east/west traffic. This is done to mitigate the risk of a bottle neck or failure to north/south traffic affecting east/west traffic and vice versa.
 
@@ -274,28 +316,5 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 | 8 | F -> G | North/south NVA routes traffic from its public interface to its private interface |
 | 9 | G -> J | North/south NVA passes traffic back to frontend virtual machine |
 
-## Hub and spoke with single NVA using two network interfaces for private traffic
-The single pattern in this section assumes the organization is deploying a single NVA for north, south, east, and west traffic. The NVA is configured with four network interfaces. The first and second interface handle private traffic (to and from on-premises to Azure or within Azure). The third interface handles public traffic (to and from the Internet). The fourth interface is used for management of the NVA. The public and management interfaces are not pictured in these diagrams.
 
-It should be noted that this pattern is not recommended. Microsoft recommends using a single network interface to reduce complexity and operational overhead introduced by the SNAT required in this pattern to preserve traffic symmetry between on-premises and Azure and vice-versa. This is due to the traffic traversing [separate load balancers](https://docs.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts#hash-based). [John Savill has an excellent video](https://www.youtube.com/watch?v=LrshfXfz29Y) on this topic.
 
-The benefit of this pattern for some NVA vendor appliances is each network interface can be assigned a separate security zone within the NVA, similar to what is typically done on-premises to establish separate trusted zones at the network layer. This can provide an easier transition for operation teams who have not yet adapted their processes for cloud.
-
-Organizations should engage their NVA vendor for guidance on this topic.
-
-### Single NVA with Dual NICS On-Premises to Azure
-Scenario: Machine on-premises initiates a connection to an application running in Azure.
-![HS-1NVA-TWO-NICS](images/HS-1NVA-Two-NICs.svg)
-
-| Step | Path  | Description |
-| ------------- | ------------- | ------------- |
-| 1 | A -> B | Machine traffic passes over ExpressRoute circuit to Virtual Network Gateway |
-| 2 | B -> C  | User defined route in route table assigned to GatewaySubnet directs traffic to internal load balancer for NVA's untrusted interface
-| 3 | C -> D | Internal load balancer passes traffic to untrusted interface of NVA |
-| 4 | D -> E | NVA evaluates its rules, allows traffic, routes to its trusted interface |
-| 5 | E -> H | NVA SNATs to its trusted interface IP and passes traffic to internal load balancer for frontend application |
-| 6 | G -> H | Internal load balancer for frontend application passes traffic to frontend application virtual machine |
-| 7 | H -> E | Frontend application virtual machine passes traffic directly back to NVA's trusted interface |
-| 8 | E -> D | NVA routes traffic from its trusted interface to its untrusted interface
-| 9 | D -> B | NVA passes traffic to Virtual Network Gateway 
-| 10 | B -> A | Virtual Network Gateway passes traffic over ExpressRoute circuit back to machine on-premises |
