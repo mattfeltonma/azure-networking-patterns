@@ -33,7 +33,7 @@ This respository will be continually updated to include new flows.
   * Azure to Azure
 
 ## Hub and Spoke with Single NVA Stack for all traffic
-The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south and east/west traffic. Each NVA is configured wwith three network interfaces. The first interface handles private traffic (to and from on-premises to Azure or within Azure). The second interface handles public traffic (to and from the Internet). The third interface, which is not pictured in these images, is used for management of the NVA.
+The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south and east/west traffic. Each NVA is configured with three network interfaces. The first interface handles private traffic (to and from on-premises to Azure or within Azure). The second interface handles public traffic (to and from the Internet). The third interface, which is not pictured in these images, is used for management of the NVA.
 
 ### Single NVA On-premises to Azure
 Scenario: Machine on-premises initiates a connection to an application running in Azure.
@@ -246,7 +246,7 @@ Scenario: Virtual machine in one spoke initiates connection to virtual machine i
 
 ### Dual NVA Azure to Internet using Public IP
 Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVA is configured with public IPs.
-![HS-1NVA](images/HS-1NVA-Basic-Flows.svg)
+![HS-2NVA-Basic-Flow](images/HS-1NVA-Basic-Flows.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -255,12 +255,12 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 | 3 | G -> F | North/south NVA evaluates its rules, allows traffic, routes to its public interface  |
 | 4 | F -> @ | Public interface NATs to its public IP and traffic is routed over the Internet to the third-party website | 
 | 5 | @ -> F | Third-party website passes traffic back to public IP of north/south NVA's public interface |
-| 6 | F -> G | North/south NVA passes traffic rom its public interface to its private interface |
+| 6 | F -> G | North/south NVA routes traffic from its public interface to its private interface |
 | 7 | G -> J | North/south NVA passes traffic back to frontend virtual machine |
 
 ### Dual NVA Azure to Internet using NAT Gateway
 Scenario: Virtual machine in Azure initiates a connection to a third-party website on the Internet and the NVAs are configured to use NAT Gateway.
-![HS-1NVA](images/HS-2NVA-NAT-Gateway.svg)
+![HS-2NVA-NAT-GATEWAY](images/HS-2NVA-NAT-Gateway.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -273,3 +273,26 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 | 7 | M -> F | NAT Gateway passes traffic back to north/south NVA's public interface |
 | 8 | F -> G | North/south NVA routes traffic from its public interface to its private interface |
 | 9 | G -> J | North/south NVA passes traffic back to frontend virtual machine |
+
+## Hub and spoke with single NVA using two network interfaces for private traffic
+The single pattern in this section assumes the organization is deploying a single NVA for north, south, east, and west traffic. The NVA is configured with four network interfaces. The first and second interface handle private traffic (to and from on-premises to Azure or within Azure). The third interface handles public traffic (to and from the Internet). The fourth interface is used for management of the NVA. The public and management interfaces are not pictured in these diagrams.
+
+It should be noted that this pattern is not recommended. Microsoft recommends using a single network interface to reduce complexity and operational overhead introduced by the SNAT required in this pattern to preserve traffic symmetry. This is due to the traffic traversing [separate load balancers](https://docs.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts#hash-based). [John Savill has an excellent video](https://www.youtube.com/watch?v=LrshfXfz29Y) on this topic.
+
+The benefit of this pattern for some NVA vendor appliances is each network interface can be assigned a separate security zone within the NVA, similar to what is typically done on-premises. This can provide an easier transition for operation teams who have not yet adapted their processes for cloud.
+
+Organizations should engage their NVA vendor for guidance on this topic.
+![HS-1NVA-TWO-NICS](images/HS-1NVA-Two-NICs.svg)
+
+| Step | Path  | Description |
+| ------------- | ------------- | ------------- |
+| 1 | A -> B | Machine traffic passes over ExpressRoute circuit to Virtual Network Gateway |
+| 2 | B -> C  | User defined route in route table assigned to GatewaySubnet directs traffic to internal load balancer for NVA's untrusted interface
+| 3 | C -> D | Internal load balancer passes traffic to untrusted interface of NVA |
+| 4 | D -> E | NVA evaluates its rules, allows traffic, routes to its trusted interface |
+| 5 | E -> H | NVA SNATs to its trusted interface IP passes traffic to internal load balancer for frontend application |
+| 6 | G -> H | Internal load balancer for frontend application passes traffic to frontend application virtual machine |
+| 7 | H -> E | Frontend application virtual machine passes traffic directly back to NVA's trusted interface |
+| 8 | E -> D | NVA routes traffic from its trusted interface to its untrusted interface
+| 9 | D -> B | NVA passes traffic to Virtual Network Gateway 
+| 10 | B -> A | Virtual Network Gateway passes traffic over ExpressRoute circuit back to machine on-premises |
