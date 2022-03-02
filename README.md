@@ -27,8 +27,8 @@ This respository will be continually updated to include new flows.
   * [Azure to Azure](#dual-nva-azure-to-azure)
   * [Azure to Internet using Public IP](#dual-nva-azure-to-internet-using-public-ip)
   * [Azure to Internet using NAT Gateway](#dual-nva-azure-to-internet-using-nat-gateway)
-* Hub and Spoke with single NVA stack for all traffic and NVA has dual NICs
-  * On-premises to Azure
+* [Hub and Spoke with single NVA stack for all traffic and NVA has dual NICs](#hub-and-spoke-with-single-nva-using-two-network-interfaces-for-private-traffic)
+  * [On-premises to Azure](#single-nva-with-dual-nics-on-premises-to-azure)
 * Hub and Spoke with single NVA stack for all traffic in multiple regions
   * Azure to Azure
 
@@ -277,11 +277,14 @@ Scenario: Virtual machine in Azure initiates a connection to a third-party websi
 ## Hub and spoke with single NVA using two network interfaces for private traffic
 The single pattern in this section assumes the organization is deploying a single NVA for north, south, east, and west traffic. The NVA is configured with four network interfaces. The first and second interface handle private traffic (to and from on-premises to Azure or within Azure). The third interface handles public traffic (to and from the Internet). The fourth interface is used for management of the NVA. The public and management interfaces are not pictured in these diagrams.
 
-It should be noted that this pattern is not recommended. Microsoft recommends using a single network interface to reduce complexity and operational overhead introduced by the SNAT required in this pattern to preserve traffic symmetry. This is due to the traffic traversing [separate load balancers](https://docs.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts#hash-based). [John Savill has an excellent video](https://www.youtube.com/watch?v=LrshfXfz29Y) on this topic.
+It should be noted that this pattern is not recommended. Microsoft recommends using a single network interface to reduce complexity and operational overhead introduced by the SNAT required in this pattern to preserve traffic symmetry between on-premises and Azure and vice-versa. This is due to the traffic traversing [separate load balancers](https://docs.microsoft.com/en-us/azure/load-balancer/distribution-mode-concepts#hash-based). [John Savill has an excellent video](https://www.youtube.com/watch?v=LrshfXfz29Y) on this topic.
 
-The benefit of this pattern for some NVA vendor appliances is each network interface can be assigned a separate security zone within the NVA, similar to what is typically done on-premises. This can provide an easier transition for operation teams who have not yet adapted their processes for cloud.
+The benefit of this pattern for some NVA vendor appliances is each network interface can be assigned a separate security zone within the NVA, similar to what is typically done on-premises to establish separate trusted zones at the network layer. This can provide an easier transition for operation teams who have not yet adapted their processes for cloud.
 
 Organizations should engage their NVA vendor for guidance on this topic.
+
+### Single NVA with Dual NICS On-Premises to Azure
+Scenario: Machine on-premises initiates a connection to an application running in Azure.
 ![HS-1NVA-TWO-NICS](images/HS-1NVA-Two-NICs.svg)
 
 | Step | Path  | Description |
