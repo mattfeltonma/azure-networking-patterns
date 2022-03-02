@@ -293,7 +293,7 @@ Scenario: Machine on-premises initiates a connection to an application running i
 | 2 | B -> C  | User defined route in route table assigned to GatewaySubnet directs traffic to internal load balancer for NVA's untrusted interface
 | 3 | C -> D | Internal load balancer passes traffic to untrusted interface of NVA |
 | 4 | D -> E | NVA evaluates its rules, allows traffic, routes to its trusted interface |
-| 5 | E -> H | NVA SNATs to its trusted interface IP passes traffic to internal load balancer for frontend application |
+| 5 | E -> H | NVA SNATs to its trusted interface IP and passes traffic to internal load balancer for frontend application |
 | 6 | G -> H | Internal load balancer for frontend application passes traffic to frontend application virtual machine |
 | 7 | H -> E | Frontend application virtual machine passes traffic directly back to NVA's trusted interface |
 | 8 | E -> D | NVA routes traffic from its trusted interface to its untrusted interface
