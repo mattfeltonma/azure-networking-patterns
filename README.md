@@ -12,20 +12,29 @@ For the purposes of this repository, north and south traffic is traffic ingressi
 
 This respository will be continually updated to include new flows.
 
-## Sections
-* [Hub and Spoke with single NVA stack for all traffic](#hub-and-spoke-with-single-nva-stack-for-all-traffic)
+## Patterns
+### [Hub and Spoke with single NVA stack for all traffic](#hub-and-spoke-with-single-nva-stack-for-all-traffic)
+#### General Patterns
   * [On-premises to Azure](#single-nva-on-premises-to-azure)
   * [Azure to Azure](#single-nva-azure-to-azure)
   * [Azure to Internet using Public IP](#single-nva-azure-to-internet-using-public-ip)
   * [Azure to Internet using NAT Gateway](#single-nva-azure-to-internet-using-nat-gateway)
-  * [Internet to Azure with HTTP/HTTPS Traffic Option 1](#single-nva-internet-to-azure-http-and-https-option-1)
-  * [Internet to Azure with HTTP/HTTPS Traffic Option 2](#single-nva-internet-to-azure-http-and-https-option-2)
-  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 1](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-1)
-  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 2](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-2)
   * [Internet to Azure Non HTTP/HTTPS Traffic](#single-nva-internet-to-azure-non-http-and-https)
   * [Cross Region Azure to Azure](#single-nva-cross-region-azure-to-azure)
   * [Dual NIC On-Premises to Azure](#single-nva-with-dual-nics-on-premises-to-azure)
-* [Hub and Spoke with separate NVA stacks for east/west and north/south traffic](#hub-and-spoke-with-separate-nva-stacks)
+  #### HTTP/HTTPS Patterns
+  * [Internet to Azure with HTTP/HTTPS Traffic Option 1 - Virtual Machines](#single-nva-internet-to-azure-http-and-https-option-1-vms)
+  * [Internet to Azure with HTTP/HTTPS Traffic Option 2 - Virtual Machines](#single-nva-internet-to-azure-http-and-https-option-2-vms)
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 1 - Virtual Machines](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-1-vms)
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 2 - Virtual Machines](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-2-vms)
+  * [Internet to Azure with HTTP/HTTPS Traffic Option 1 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-option-1-pes)
+  * [Internet to Azure with HTTP/HTTPS Traffic Option 2 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-option-2-pes)
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 1 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-1-pes)
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 2 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-2-pes)
+
+
+### [Hub and Spoke with separate NVA stacks for east/west and north/south traffic](#hub-and-spoke-with-separate-nva-stacks)
+#### General Patterns
   * [Azure to Azure](#dual-nva-azure-to-azure)
   * [Azure to Internet using Public IP](#dual-nva-azure-to-internet-using-public-ip)
   * [Azure to Internet using NAT Gateway](#dual-nva-azure-to-internet-using-nat-gateway)
@@ -103,7 +112,7 @@ Considerations of this pattern include:
 * [Scale issues due to Application Gateway limits](https://github.com/MicrosoftDocs/azure-docs/blob/master/includes/application-gateway-limits.md)
 * Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway
 * Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared
-![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub.svg)
+![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub-Vm.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -129,7 +138,7 @@ Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
 * Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
-![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke.svg)
+![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Vm.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -156,7 +165,7 @@ Considerations of this pattern include:
 * [Scale issues due to Application Gateway limits](https://github.com/MicrosoftDocs/azure-docs/blob/master/includes/application-gateway-limits.md)
 * Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway
 * Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared
-![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub-Insp.svg)
+![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub-Insp-Vm.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
@@ -190,7 +199,7 @@ Considerations of this pattern include:
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
 * Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
 
-![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Insp.svg)
+![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Insp-Vm.svg)
 
 | Step | Path  | Description |
 | ------------- | ------------- | ------------- |
