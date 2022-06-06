@@ -123,6 +123,7 @@ Scenario: User on the Internet initiates a connection to an application running 
 Benefits of this pattern include:
 * The blast radius for misconfigurations or failures of the Application Gateway instance are limited to the individual workload
 * The reduction in risk can allow for further democratization of Azure resources providing more agility to workload owners
+* Enabling DDoS Standard on workload virtual network causes [Application Gateway with WAF to be billed at non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
 
 Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
@@ -181,11 +182,14 @@ Reference the [public documentation](https://docs.microsoft.com/en-us/azure/arch
 Benefits of this pattern include:
 * The blast radius for misconfigurations or failures of the Application Gateway instance are limited to the individual workload
 * The reduction in risk can allow for further democratization of Azure resources providing more agility to workload owners
+* Enabling DDoS Standard on workload virtual network causes [Application Gateway with WAF to be billed at non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
 
 Considerations of this pattern include:
 * Additional costs an Application Gateway per workload
 * Additional costs of traffic traversing the peering to the transit virtual network
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
+* Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
+
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Insp.svg)
 
 | Step | Path  | Description |
