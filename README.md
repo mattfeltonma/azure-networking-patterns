@@ -28,9 +28,9 @@ This respository will be continually updated to include new flows.
   * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 1 - Virtual Machines](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-1-virtual-machines)
   * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 2 - Virtual Machines](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-2-virtual-machines)
   * [Internet to Azure with HTTP/HTTPS Traffic Option 1 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-option-1-private-endpoints)
-  * [Internet to Azure with HTTP/HTTPS Traffic Option 2 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-option-2-private-endpoint)
-  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 1 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-1-private-endpoint)
-  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 2 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-2-private-endpoint)
+  * [Internet to Azure with HTTP/HTTPS Traffic Option 2 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-option-2-private-endpoints)
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 1 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-1-private-endpoints)
+  * [Internet to Azure with HTTP/HTTPS Traffic with IDS IPS Option 2 - Private Endpoints](#single-nva-internet-to-azure-http-and-https-with-ids-ips-option-2-private-endpoints)
 
 
 ### [Hub and Spoke with separate NVA stacks for east/west and north/south traffic](#hub-and-spoke-with-separate-nva-stacks)
