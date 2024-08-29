@@ -1,16 +1,19 @@
 # Traffic Flows in Common Azure Networking Patterns
 
 ## Overview
-A critical foundational decisions an organization will make when adopting Azure is settling on a networking architecture. 
+A foundational decision an organization will make when adopting Azure is settling on a networking architecture. 
 The [Microsoft Azure Cloud Adoption Framework](https://docs.microsoft.com/en-us/azure/architecture/framework/security/design-network-segmentation) and [Azure Architecture Center](https://docs.microsoft.com/en-us/azure/architecture/) can help you to align your organizational requirements for security and operations with the appropriate architecture. While these resources do a great job explaining the benefits and considerations of each architecture, they often lack details as to how a packet gets from point A to point B. 
 
-The traffic flows documented in this repository seek to fill this gap to provide the details of how the traffic typically flows and the options available to influence these flows to achieve security and operational goals. Additionally, they can act as a tool for learning the platform and troubleshooting issues with Azure networking.
+The traffic flows documented in this repository seek to fill this gap to provide the details of the packet flow and the options available to influence these flows to achieve security and operational goals. Additionally, they can act as a tool for learning the platform and troubleshooting issues with Azure networking.
 
-The term NVA (network virtual appliance) is used in this repository to reference a security appliance, most commonly a next-gen firewall. NVAs will typically have a separate management interface in a dedicated management subnet which is not shown in these images.
+The term NVA (network virtual appliance) is used in this repository to reference a security appliance, most commonly a next-gen firewall. NVAs will typically have a separate management interface in a dedicated management subnet which is not shown in these images. Examples of common NVAs used in Azure include Azure Firewall, Palo Alto, Fortinet, and Imperva.
 
-For the purposes of this repository, north and south traffic is traffic ingressing or egressing to the Internet. East and west traffic is traffic ingressing or egressing between on-premises and Azure or between workloads running in Azure.
+For the purposes of this repository:
+* Northbound traffic is traffic destined to the Internet
+* Southbound traffic is traffic destined to Azure coming a source on the Internet
+* Eastbound and westbound traffic is traffic between on-premises and Azure or between Azure virtual networks.
 
-This respository will be continually updated to include new flows.
+There are many viable patterns in Azure and this repository does not contain them all. Its goal is to document the most common packet flows to help aid in the understanding of Azure networking.
 
 ## Patterns
 ### [Hub and Spoke with single NVA stack for all traffic](#hub-and-spoke-with-single-nva-stack-for-all-traffic)
@@ -40,7 +43,7 @@ This respository will be continually updated to include new flows.
   * [Azure to Internet using NAT Gateway](#dual-nva-azure-to-internet-using-nat-gateway)
 
 ## Hub and Spoke with Single NVA Stack for all traffic
-The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south and east/west traffic. Each NVA is configured with three network interfaces. The first interface handles private traffic (to and from on-premises to Azure or within Azure). The second interface handles public traffic (to and from the Internet). The third interface, which is not pictured in these images, is used for management of the NVA.
+The patterns in this section assume the organization is deploying a single NVA stack that will handle north/south and east/west traffic. Each NVA is configured with three network interfaces. The first interface handles internal traffic (to and from on-premises to Azure or between Azure virtual networks). The second interface handles external traffic (to and from the Internet). The third interface, which is not pictured in these images, is used for management of the NVA.
 
 ### Single NVA On-premises to Azure
 Scenario: Machine on-premises initiates a connection to an application running in Azure.
@@ -113,9 +116,9 @@ Benefits of this pattern include:
 * Traffic sourced from the Internet is centrally ingressed through the transit virtual network which can be tightly controlled by central IT.
 
 Considerations of this pattern include:
-* [Scale issues due to Application Gateway limits](https://github.com/MicrosoftDocs/azure-docs/blob/master/includes/application-gateway-limits.md).
-* Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway.
-* Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared.
+* Each instance of Application Gateway is [limited to 100 backend address pools](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#application-gateway-limits). This means that each instance of Application Gateway can provide its services for a maximum of 100 different applications where each application is an address pool.
+* Misconfiguration or failure of the Application Gateway in a centralized model can result in a large blast radius.
+* There is not an easy way to democratize control of the Application Gateway to development teams. This means Central IT will need to manage and modify the Application Gateway.
 * Chargebacks to individual business units will be challenging.
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub-Vm.svg)
@@ -138,12 +141,12 @@ Scenario: User on the Internet initiates a connection to an application running 
 Benefits of this pattern include:
 * The blast radius for misconfigurations or failures of the Application Gateway instance are limited to the individual workload.
 * The reduction in risk can allow for further democratization of Azure resources providing more agility to workload owners.
-* Enabling DDoS Standard on workload virtual network causes [Application Gateway with WAF to be billed at non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
+* Enabling DDoS Network Protection on workload virtual network provides cost benefits of billing [Application Gateway with WAF at the non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
 * Chargebacks to individual business units is straightforward.
 
 Considerations of this pattern include:
-* Additional costs an Application Gateway per workload
-* Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
+* Additional costs of an Application Gateway per workload
+* Additional costs for [DDoS Network Protection](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Entra Tenant. Each Azure Application Gateway will consume at least one Public IP.
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Vm.svg)
@@ -166,14 +169,17 @@ Scenario: User on the Internet initiates a connection to an application running 
 Reference the [public documentation](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gateway/firewall-application-gateway) for additional ways to achieve this pattern.
 
 Benefits of this pattern include:
+* Traffic can be inspected and processed through an NVA's IDS/IPS engine.
 * Centralized administration of the Application Gateway which may fit the operational model of organizations new to Azure.
 * Traffic sourced from the Internet is centrally ingressed through the transit virtual network which can be tightly controlled by central IT.
 
 Considerations of this pattern include:
-* [Scale issues due to Application Gateway limits](https://github.com/MicrosoftDocs/azure-docs/blob/master/includes/application-gateway-limits.md).
-* Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway.
-* Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared.
+* Additional hop through the NVA can introduce additional latency or act as a bottleneck.
+* Each instance of Application Gateway is [limited to 100 backend address pools](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#application-gateway-limits). This means that each instance of Application Gateway can provide its services for a maximum of 100 different applications where each application is an address pool.
+* Misconfiguration or failure of the Application Gateway in a centralized model can result in a large blast radius.
+* There is not an easy way to democratize control of the Application Gateway to development teams. This means Central IT will need to manage and modify the Application Gateway.
 * Chargebacks to individual business units will be challenging.
+
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub-Insp-Vm.svg)
 
@@ -199,16 +205,18 @@ Scenario: User on the Internet initiates a connection to an application running 
 Reference the [public documentation](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gateway/firewall-application-gateway) for additional ways to achieve this pattern.
 
 Benefits of this pattern include:
+* Traffic can be inspected and processed through an NVA's IDS/IPS engine.
 * The blast radius for misconfigurations or failures of the Application Gateway instance are limited to the individual workload.
 * The reduction in risk can allow for further democratization of Azure resources providing more agility to workload owners.
-* Enabling DDoS Standard on workload virtual network causes [Application Gateway with WAF to be billed at non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
+* Enabling DDoS Network Protection on workload virtual network causes [Application Gateway with WAF to be billed at non-WAF rate](https://learn.microsoft.com/en-us/azure/ddos-protection/).
 * Chargebacks to individual business unit is straightforward.
 
 Considerations of this pattern include:
-* Additional costs an Application Gateway per workload.
-* Additional costs of traffic traversing the peering to the transit virtual network.
+* Additional hop through the NVA can introduce additional latency or act as a bottleneck.
+* Additional costs of traffic traversing the peering to the transit virtual network to be processed by the NVA.
+* Additional costs of an Application Gateway per workload
+* Additional costs for [DDoS Network Protection](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Entra Tenant. Each Azure Application Gateway will consume at least one Public IP.
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
-* Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Insp-Vm.svg)
 
@@ -236,9 +244,9 @@ Benefits of this pattern include:
 * Traffic sourced from the Internet is centrally ingressed through the transit virtual network which can be tightly controlled by central IT.
 
 Considerations of this pattern include:
-* [Scale issues due to Application Gateway limits](https://github.com/MicrosoftDocs/azure-docs/blob/master/includes/application-gateway-limits.md).
-* Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway.
-* Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared.
+* Each instance of Application Gateway is [limited to 100 backend address pools](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#application-gateway-limits). This means that each instance of Application Gateway can provide its services for a maximum of 100 different applications where each application is an address pool.
+* Misconfiguration or failure of the Application Gateway in a centralized model can result in a large blast radius.
+* There is not an easy way to democratize control of the Application Gateway to development teams. This means Central IT will need to manage and modify the Application Gateway.
 * Chargebacks to individual business units will be challenging.
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub-Pe.svg)
@@ -260,12 +268,12 @@ Scenario: User on the Internet initiates a connection to an application running 
 Benefits of this pattern include:
 * The blast radius for misconfigurations or failures of the Application Gateway instance are limited to the individual workload.
 * The reduction in risk can allow for further democratization of Azure resources providing more agility to workload owners.
-* Enabling DDoS Standard on workload virtual network causes [Application Gateway with WAF to be billed at non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
+* Enabling DDoS Network Protection on workload virtual network provides cost benefits of billing [Application Gateway with WAF at the non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
 * Chargebacks to individual business units is straightforward.
 
 Considerations of this pattern include:
-* Additional costs an Application Gateway per workload
-* Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
+* Additional costs of an Application Gateway per workload
+* Additional costs for [DDoS Network Protection](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Entra Tenant. Each Azure Application Gateway will consume at least one Public IP.
 * Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Pe.svg)
@@ -287,16 +295,18 @@ Scenario: User on the Internet initiates a connection to an application running 
 Reference the [public documentation](https://docs.microsoft.com/en-us/azure/architecture/example-scenario/gateway/firewall-application-gateway) for additional ways to achieve this pattern.
 
 Benefits of this pattern include:
+* Traffic can be inspected and processed through an NVA's IDS/IPS engine.
 * Centralized administration of the Application Gateway which may fit the operational model of organizations new to Azure.
 * Traffic sourced from the Internet is centrally ingressed through the transit virtual network which can be tightly controlled by central IT.
 
-
 Considerations of this pattern include:
-* [Scale issues due to Application Gateway limits](https://github.com/MicrosoftDocs/azure-docs/blob/master/includes/application-gateway-limits.md).
-* Using the Application Gateway as a shared resource also increases the blast radius for misconfigurations or failures of the Application Gateway.
-* Workload owner agility may also be inhibited due to more restrictive change control required by the resource being shared.
-* Traffic must be source NATed at the firewall to ensure traffic symmetry.
+* Additional hop through the NVA can introduce additional latency or act as a bottleneck.
+* Approriate settings for Private Endpoint Network Policies must be configured on Private Endpoint subnet
+* Each instance of Application Gateway is [limited to 100 backend address pools](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits#application-gateway-limits). This means that each instance of Application Gateway can provide its services for a maximum of 100 different applications where each application is an address pool.
+* Misconfiguration or failure of the Application Gateway in a centralized model can result in a large blast radius.
+* There is not an easy way to democratize control of the Application Gateway to development teams. This means Central IT will need to manage and modify the Application Gateway.
 * Chargebacks to individual business units will be challenging.
+
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Hub-Insp-Pe.svg)
 
@@ -322,14 +332,13 @@ Reference the [public documentation](https://docs.microsoft.com/en-us/azure/arch
 Benefits of this pattern include:
 * The blast radius for misconfigurations or failures of the Application Gateway instance are limited to the individual workload.
 * The reduction in risk can allow for further democratization of Azure resources providing more agility to workload owners.
-* Enabling DDoS Standard on workload virtual network causes [Application Gateway with WAF to be billed at non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
+* Enabling DDoS Network Protection on workload virtual network provides cost benefits of billing [Application Gateway with WAF at the non-WAF rate](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/).
 * Chargebacks to individual business units is straightforward.
 
 Considerations of this pattern include:
-* Additional costs an Application Gateway per workload
-* Additional costs of traffic traversing the peering to the transit virtual network
-* Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.
-* Additional costs for [DDoS Standard](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Azure AD Tenant. Each Azure Application Gateway will consume at least one Public IP.
+* Additional costs of an Application Gateway per workload
+* Additional costs for [DDoS Network Protection](https://azure.microsoft.com/en-us/pricing/details/ddos-protection/). DDoS Standard is licensed per 100 Public IPs and these IPs can be across multiple Virtual Networks in different subscriptions in the same Entra Tenant. Each Azure Application Gateway will consume at least one Public IP.
+* Additional Azure Policy may also need to be introduced to ensure appropriate guardrails are put in place around secure configuration of Application Gateway.h Azure Application Gateway will consume at least one Public IP.
 * Traffic must be source NATed at the firewall to ensure traffic symmetry.
 
 ![HS-1NVA](images/HS-1NVA-Web-Inbound-Agw-Spoke-Insp-Pe.svg)
